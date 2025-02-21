@@ -1,1 +1,1 @@
-Clox compiler based on Crafting Interpreters.
+C-based compiler translating to bytecode executed by a virtual machine, inspired by Crafting Interpreters' Clox.
