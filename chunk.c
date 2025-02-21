@@ -35,5 +35,3 @@ int addConstant(Chunk* chunk, Value value) {
     writeValueArray(&chunk->constants, value);
     return chunk->constants.count - 1;
 }
-
-//resume at 14.5.3 constant instructions

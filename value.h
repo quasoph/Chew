@@ -1,5 +1,5 @@
-#ifndef clox_value_h // protection
-#define clox_value_h
+#ifndef chew_value_h // protection
+#define chew_value_h
 
 #include "common.h" // include std bool, def and int
 

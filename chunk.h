@@ -1,5 +1,5 @@
-#ifndef clox_chunk_h
-#define clox_chunk_h
+#ifndef chew_chunk_h
+#define chew_chunk_h
 
 #include "common.h"
 #include "value.h"
@@ -25,7 +25,6 @@ int addConstant(Chunk* chunk, Value value);
 
 #endif
 
-// return at ch14.6 line information
 // to compile and run:
 // clang *.c
 // ./a.out
