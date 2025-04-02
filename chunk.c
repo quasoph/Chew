@@ -20,6 +20,11 @@ void freeChunk(Chunk* chunk) {
     initChunk(chunk);
 }
 
+void writeConstant(Chunk* chunk, Value value, int line) {
+    writeValueArray(&chunk->constants, value);
+    
+}
+
 void writeChunk(Chunk* chunk, uint8_t byte, int line) {
     // grow capacity if count too large
     if (chunk->capacity < chunk->count + 1) {
