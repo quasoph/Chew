@@ -3,6 +3,8 @@
 #include "debug.h"
 #include "value.h"
 
+// dissassembles chunk into readable bytecode. "instructions" interpret opcode
+
 void disassembleChunk(Chunk* chunk, const char* name) {
     printf("== %s ==\n", name); // print name of chunk
 
@@ -17,6 +19,14 @@ static int constantInstruction(const char* name, Chunk* chunk, int offset) {
     printValue(chunk->constants.values[constant]); //print value of constant at that index
     printf("'\n");
     return offset + 2; //returns beginning of next instruction, as this instruction is 2 bytes
+}
+
+static int longConstantInstruction(const char* name, Chunk* chunk, int offset) {
+    uint16_t longconstant = chunk->code[offset + 1];
+    printf("%-16s %4d '", name, longconstant);
+    printValue(chunk->constants.values[longconstant]);
+    printf("'\n");
+    return offset + 3; //unsure about this
 }
 
 static int simpleInstruction(const char* name, int offset) {
@@ -38,7 +48,7 @@ int disassembleInstruction(Chunk* chunk, int offset) {
         case OP_CONSTANT:
             return constantInstruction("OP_CONSTANT", chunk, offset);
         case OP_CONSTANT_LONG:
-            return constantInstruction("OP_CONSTANT_LONG", chunk, offset);
+            return longConstantInstruction("OP_CONSTANT_LONG", chunk, offset);
         case OP_RETURN:
             return simpleInstruction("OP_RETURN", offset);
         default:

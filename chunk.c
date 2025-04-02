@@ -3,6 +3,8 @@
 #include "chunk.h"
 #include "memory.h"
 
+// define things you can do with chunks
+
 void initChunk(Chunk* chunk) {
     // chunk initialized with 0 count, 0 capacity and filled with null code
     chunk->count = 0;
@@ -21,8 +23,23 @@ void freeChunk(Chunk* chunk) {
 }
 
 void writeConstant(Chunk* chunk, Value value, int line) {
-    writeValueArray(&chunk->constants, value);
-    
+
+    // grow capacity if there's no space
+
+    if (chunk->capacity < chunk->count + 1) {
+        int oldCapacity = chunk->capacity;
+        chunk->capacity = GROW_CAPACITY(oldCapacity);
+        chunk->code = GROW_ARRAY(uint8_t, chunk->code, oldCapacity, chunk->capacity);
+        chunk->lines = GROW_ARRAY(int, chunk->lines, oldCapacity, chunk->capacity);
+    }
+
+    // write value (constant) to chunk's constants array
+
+    writeValueArray(&chunk->constants, value); // unsure if this duplicates what happens in addConstant
+
+    chunk->lines[chunk->count] = line; // set line
+    chunk->count++; // increment count
+
 }
 
 void writeChunk(Chunk* chunk, uint8_t byte, int line) {
@@ -36,7 +53,7 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
 
     // set byte and increment count
     chunk->code[chunk->count] = byte;
-    chunk->lines[chunk->count] = line; // next bit: dissassembly with lines
+    chunk->lines[chunk->count] = line;
     chunk->count++;
 }
 
