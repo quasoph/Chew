@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <regex.h>
+#include "lexer.h"
 
 typedef enum {
     KEYWORD,
@@ -67,7 +68,7 @@ Token *generate_separator(char *current) {
 }
 
 Token *generate_string_literal(char *current) {
-    char *string_literal = malloc(sizeof(char) * 8);
+    char *string_literal = malloc(sizeof(char) * 64);
     string_literal = current;
     Token *token = malloc(sizeof(Token));
     token->line_num = malloc(sizeof(size_t));
@@ -125,18 +126,4 @@ Token lexer(FILE *file) {
     tokens[tokens_idx].value = '\0';
     tokens[tokens_idx].type = EOT;
     return tokens;
-}
-
-
-int main() {
-
-    int ch;
-    
-    FILE *file = fopen("file.txt", "w");
-    while ((ch = getc(file)) != EOF) {
-        printf(ch);
-    }
-
-    fclose(file);
-    return 0;
 }
