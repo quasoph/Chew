@@ -9,8 +9,6 @@ typedef enum {
     IDENTIFIER,
     INT,
     STRING,
-    START,
-    END,
     EOT /* End Of Tokens */
 } TokenType;
 
@@ -35,6 +33,9 @@ Token *generate_keyword_or_identifier(char *current) {
     } else if(strcmp(keyword, "write") == 0) {
         token->type = KEYWORD;
         token->value = "WRITE";
+    } else if(strcmp(keyword, "read") == 0) {
+        token->type = KEYWORD;
+        token->value = "READ";
     } else {
         token->type = IDENTIFIER;
         token->value = keyword;
