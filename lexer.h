@@ -23,3 +23,5 @@ Token *generate_separator(char *current);
 Token *generate_string_literal(char *current);
 Token *generate_int_literal(char *current);
 Token lexer(FILE *file);
+
+#endif

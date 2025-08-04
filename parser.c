@@ -9,13 +9,13 @@ typedef enum {
     FUNC
 } DeclarationType;
 
-typedef struct {
+struct Declaration {
     char *name;
     DeclarationType *type;
     char *value;
     char *code;
     char *next;
-} Declaration;
+};
 
 typedef enum {
     STMT_DECL,
@@ -27,7 +27,7 @@ typedef enum {
     STMT_BLOCK
 } StatementType;
 
-typedef struct {
+struct Statement {
     StatementType kind;
     struct decl *decl;
     struct expr *init_expr;
@@ -36,4 +36,5 @@ typedef struct {
     struct stmt *body;
     struct stmt *else_body;
     struct stmt *next;
-} Statement;
+};
+
