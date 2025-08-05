@@ -1,1 +1,1 @@
-printf("Hello world!");
+hello orld read
