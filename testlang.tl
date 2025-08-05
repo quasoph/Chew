@@ -1,1 +1,1 @@
-int(2)
+printf("Hello world!");

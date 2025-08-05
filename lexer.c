@@ -87,39 +87,46 @@ int printToken(Token *token) {
 /* Create a generate_start, generate_end and corresponding regex for the lexer. */
 
 Token lexer(FILE *file) {
-    printf("yo");
+    
     int num_tokens = 12;
-    Token *tokens = malloc(sizeof(Token) * num_tokens);
+    int tokens_size = 0;
     int tokens_idx = 0;
 
-    char current = fgetc(file);
-    while (current != EOF) {
+    Token *tokens = malloc(sizeof(Token) * num_tokens);
+    
+    int current;
+    while ((current = fgetc(file)) != EOF) {
+
+        char ch = (char) current;
+
         Token *token = malloc(sizeof(Token));
+        
         regex_t reegex;
 
-        int operator_rgx = regcomp(&reegex, "!|=|+|;|(|)|{|}", 0);
-        operator_rgx = regexec(&reegex, &current, 0, NULL, 0);
-        int separator_rgx = regcomp(&reegex, "w+", 0);
-        separator_rgx = regexec(&reegex, &current, 0, NULL, 0);
+        int operator_rgx = regcomp(&reegex, "\\(|\\)|!|%|&|;|\\*", REG_EXTENDED);
+        operator_rgx = regexec(&reegex, &ch, 0, NULL, 0);
+        int separator_rgx = regcomp(&reegex, "w+", REG_EXTENDED);
+        separator_rgx = regexec(&reegex, &ch, 0, NULL, 0);
 
-        if (operator_rgx) {
-            token = generate_operator(&current);
-            printf("FOUND OPERATOR");
-        } else if (separator_rgx) {
-            token = generate_separator(&current);
-            printf("FOUND SEPARATOR");
+        if (!operator_rgx) {
+            token = generate_operator(&ch);
+            printf("FOUND OPERATOR %c\n", ch);
+        } else if (!separator_rgx) {
+            token = generate_separator(&ch);
+            printf("FOUND SEPARATOR %c\n", ch);
         } else if (current == '"') {
-            token = generate_string_literal(&current);
-            printf("FOUND STRING LITERAL");
+            token = generate_string_literal(&ch);
+            printf("FOUND STRING LITERAL %c\n", ch);
         } else if (isalpha(current)) {
-            token = generate_keyword_or_identifier(&current);
-            printf("FOUND KEYWORD");
+            token = generate_keyword_or_identifier(&ch);
+            printf("FOUND KEYWORD %c\n", ch);
         } else if (isdigit(current)) {
-            token = generate_int_literal(&current);
-            printf("FOUND INTEGER LITERAL");
+            token = generate_int_literal(&ch);
+            printf("FOUND INTEGER LITERAL %c\n", ch);
         }
         tokens[tokens_idx] = *token;
         tokens_idx++;
+        num_tokens++;
     }
     tokens[tokens_idx].value = 0;
     tokens[tokens_idx].type = EOT;
