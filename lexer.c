@@ -8,6 +8,18 @@
 size_t line_number = 0;
 
 Token *generate_keyword_or_identifier(char *current) {
+    /*
+    Token generator for keywords and identifiers.
+
+        Parameters
+        ----------
+        char *current : accepts value stored in pointer for currently read
+            char from file.
+
+        Outputs
+        ----------
+        Token token : token with type, value and line_num.
+    */
     char *keyword = malloc(sizeof(char) * 8);
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
@@ -33,6 +45,7 @@ Token *generate_keyword_or_identifier(char *current) {
 }
 
 Token *generate_operator(char *current) {
+    /* Token generator for operators. */
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
 
@@ -43,6 +56,7 @@ Token *generate_operator(char *current) {
 }
 
 Token *generate_separator(char *current) {
+    /* Token generator for separators. */
     char *keyword = malloc(sizeof(char) * 8);
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
@@ -54,6 +68,7 @@ Token *generate_separator(char *current) {
 }
 
 Token *generate_string_literal(char *current) {
+    /* Token generator for strings. */
     char *string_literal = malloc(sizeof(char) * 64);
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
@@ -65,6 +80,7 @@ Token *generate_string_literal(char *current) {
 }
 
 Token *generate_int_literal(char *current) {
+    /* Token generator for integers. */
     char *value = malloc(sizeof(char) * 8);
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
@@ -76,7 +92,16 @@ Token *generate_int_literal(char *current) {
 }
 
 Token lexer(FILE *file) {
-    
+    /*
+    Regex lexer.
+        Parameters
+        ----------
+        FILE *file : file containing code for lexing.
+
+        Outputs
+        ----------
+        Token *tokens : set of tokens generated.
+    */
     int num_tokens = 12;
     int tokens_size = 0;
     int tokens_idx = 0;
