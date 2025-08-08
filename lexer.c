@@ -95,16 +95,21 @@ Token lexer(FILE *file) {
         TokenList *tokens : set of tokens generated.
     */
     int num_tokens = 12;
-    int tokens_size = 0;
-    int capacity = 12;
+    int capacity = 16;
 
     Token *tokens = malloc(capacity * sizeof(Token));
 
     int current;
     regex_t op_reegex;
     regex_t sep_reegex;
-    int operator_rgx = regcomp(&op_reegex, "+|=|-|/|!|\\*", REG_EXTENDED);
+    int operator_rgx = regcomp(&op_reegex, "\\+|=|-|/|!|\\*", REG_EXTENDED);
     int separator_rgx = regcomp(&sep_reegex, ";|\\(|\\)|\\{|\\}", REG_EXTENDED);
+
+    if (operator_rgx != 0) {
+        fprintf(stderr, "Failed to compile operator regex.\n");
+    } else if (separator_rgx != 0) {
+        fprintf(stderr, "Failed to compile separator regex.\n");
+    }
 
     while ((current = fgetc(file)) != EOF) {
 
