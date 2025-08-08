@@ -1,1 +1,1 @@
-test file!
+write("Text");

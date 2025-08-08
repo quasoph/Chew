@@ -168,6 +168,11 @@ int lexer(FILE *file) {
         }
         printf("[ %s ] ", token->value);
         free(token);
+    }
+    printf("\nTokens compiled (in order of appearance):\n");
+    int i;
+    for (i = 12; i < num_tokens; i++) {
+        printf("%s\n", tokens[i].value);
     }    
     regfree(&op_reegex);
     regfree(&sep_reegex);
