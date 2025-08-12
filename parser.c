@@ -1,40 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "parser.h"
+#include "lexer.h"
 
-typedef enum {
-    BOOL,
-    STRING,
-    INT,
-    FUNC
-} DeclarationType;
+// LL(1) parser.
 
-struct Declaration {
-    char *name;
-    DeclarationType *type;
-    char *value;
-    char *code;
-    char *next;
-};
+Stack nonterms = {"E", "E'", "T", "T'", "F"};
 
-typedef enum {
-    STMT_DECL,
-    STMT_EXPR,
-    STMT_IF_ELSE,
-    STMT_FOR,
-    STMT_PRINT,
-    STMT_RETURN,
-    STMT_BLOCK
-} StatementType;
+int push(Stack *stack, int value) {
+    if (stack->top == MAX_SIZE) {
+        fprintf(stderr, "Stack overflow.\n");
+    } else {
+        stack->arr[stack->top] = value;
+        printf("Top is now %d.\n", value);
+    }
+    return stack->top;
+}
 
-struct Statement {
-    StatementType kind;
-    struct decl *decl;
-    struct expr *init_expr;
-    struct expr *expr;
-    struct expr *next_expr;
-    struct stmt *body;
-    struct stmt *else_body;
-    struct stmt *next;
-};
+int pop(Stack *stack) {
+    if (stack->top == 0) {
+        fprintf(stderr, "Stack underflow.\n");
+    } else {
+        printf("%d removed from top.\n", stack->top);
+        stack->top--;
+        printf("Top is now %d.\n", stack->top);
+    }
+    return stack->top;
+}
 
+int Parse(Token *tokens) {
+    int i;
+    for (i=0; i < num_tokens - 1; i++) {
+        curr = tokens[i];
+        next = tokens[i+1];
+    }
+    return 0;
+}

@@ -23,18 +23,30 @@ Token *generate_keyword_or_identifier(char *current) {
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
 
-    if(strcmp(current, "int") == 0){
+    if(strcmp(current, "func") == 0){
         token->type = KEYWORD;
-        token->value = strdup("INT");
-    } else if(strcmp(current, "while") == 0){
+        token->value = strdup("FUNC");
+    } else if(strcmp(current, "if") == 0){
+        token->type = KEYWORD;
+        token->value = strdup("IF");
+    } else if(strcmp(current, "then") == 0) {
+        token->type = KEYWORD;
+        token->value = strdup("THEN");
+    } else if(strcmp(current, "else") == 0) {
+        token->type = KEYWORD;
+        token->value = strdup("ELSE");
+    } else if(strcmp(current, "while") == 0) {
         token->type = KEYWORD;
         token->value = strdup("WHILE");
-    } else if(strcmp(current, "write") == 0) {
+    } else if(strcmp(current, "for") == 0) {
         token->type = KEYWORD;
-        token->value = strdup("WRITE");
-    } else if(strcmp(current, "read") == 0) {
+        token->value = strdup("FOR");
+    } else if(strcmp(current, "int") == 0) {
         token->type = KEYWORD;
-        token->value = strdup("READ");
+        token->value = strdup("INT");
+    } else if(strcmp(current, "string") == 0) {
+        token->type = KEYWORD;
+        token->value = strdup("STRING");
     } else {
         token->type = IDENTIFIER;
         token->value = strdup(current);
@@ -98,13 +110,17 @@ int lexer(FILE *file) {
     int current;
     regex_t op_reegex;
     regex_t sep_reegex;
-    int operator_rgx = regcomp(&op_reegex, "\\+|=|-|/|!|\\*|\\%", REG_EXTENDED);
-    int separator_rgx = regcomp(&sep_reegex, ";|\\(|\\)|\\{|\\}", REG_EXTENDED);
+    regex_t space_reegex;
+    int operator_rgx = regcomp(&op_reegex, "\\+|=|-|/|!|\\*|\\%|\\||&", REG_EXTENDED);
+    int separator_rgx = regcomp(&sep_reegex, ";|\\(|\\)|\\{|\\}|,|\\.|\\[|\\]", REG_EXTENDED);
+    int space_rgx = regcomp(&space_reegex, "[[:space:]]", REG_EXTENDED);
 
     if (operator_rgx != 0) {
         fprintf(stderr, "Failed to compile operator regex.\n");
     } else if (separator_rgx != 0) {
         fprintf(stderr, "Failed to compile separator regex.\n");
+    } else if (space_rgx != 0) {
+        fprintf(stderr, "Failed to compile space regex.\n");
     }
 
     while ((current = fgetc(file)) != EOF) {
@@ -115,6 +131,7 @@ int lexer(FILE *file) {
         
         operator_rgx = regexec(&op_reegex, str, 0, NULL, 0);
         separator_rgx = regexec(&sep_reegex, str, 0, NULL, 0);
+        space_rgx = regexec(&space_reegex, str, 0, NULL, 0);
 
         if (!operator_rgx) {
             token = generate_operator(str);
@@ -122,6 +139,9 @@ int lexer(FILE *file) {
         
         } else if (!separator_rgx) {
             token = generate_separator(str);
+
+        } else if (!space_rgx) {
+            continue;
         
         } else if (ch == '"') {
             int cnt = 0;
