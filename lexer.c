@@ -29,9 +29,9 @@ Token *generate_keyword_or_identifier(char *current) {
     } else if(strcmp(current, "if") == 0){
         token->type = KEYWORD;
         token->value = strdup("IF");
-    } else if(strcmp(current, "then") == 0) {
+    } else if(strcmp(current, "do") == 0) {
         token->type = KEYWORD;
-        token->value = strdup("THEN");
+        token->value = strdup("DO");
     } else if(strcmp(current, "else") == 0) {
         token->type = KEYWORD;
         token->value = strdup("ELSE");
@@ -42,10 +42,10 @@ Token *generate_keyword_or_identifier(char *current) {
         token->type = KEYWORD;
         token->value = strdup("FOR");
     } else if(strcmp(current, "int") == 0) {
-        token->type = KEYWORD;
+        token->type = TYPEDEF;
         token->value = strdup("INT");
     } else if(strcmp(current, "string") == 0) {
-        token->type = KEYWORD;
+        token->type = TYPEDEF;
         token->value = strdup("STRING");
     } else {
         token->type = IDENTIFIER;
@@ -91,7 +91,7 @@ Token *generate_int_literal(char *current) {
     return token;
 }
 
-int lexer(FILE *file) {
+TokenList *lexer(FILE *file) {
     /*
     Regex lexer.
         Parameters
@@ -105,7 +105,10 @@ int lexer(FILE *file) {
     int num_tokens = 12;
     int capacity = 16;
 
-    Token *tokens = malloc(capacity * sizeof(Token));
+    TokenList *tokenlist = malloc(sizeof(TokenList));
+    tokenlist->count = 0;
+    tokenlist->capacity = capacity;
+    tokenlist->tokens = malloc(capacity * sizeof(Token));
 
     int current;
     regex_t op_reegex;
@@ -180,11 +183,15 @@ int lexer(FILE *file) {
         } else if (isdigit(ch)) {
             token = generate_int_literal(str);
         }
-        tokens[num_tokens] = *token;
-        num_tokens++;
+        if (tokenlist->count >= tokenlist->capacity) {
+            tokenlist->capacity *= 2;
+            tokenlist->tokens = realloc(tokenlist->tokens, tokenlist->capacity * sizeof(Token));
+        }
+        tokenlist->tokens[tokenlist->count++] = *token;
+
         if (num_tokens >= capacity) {
             capacity *= 2;
-            tokens = realloc(tokens, capacity * sizeof(Token));
+            tokenlist = realloc(tokenlist, capacity * sizeof(Token));
         }
         printf("[ %s ] ", token->value);
         free(token);
@@ -192,10 +199,9 @@ int lexer(FILE *file) {
     printf("\nTokens compiled (in order of appearance):\n");
     int i;
     for (i = 12; i < num_tokens; i++) {
-        printf("%s\n", tokens[i].value);
+        printf("%s\n", tokenlist->tokens[i].value);
     }    
     regfree(&op_reegex);
     regfree(&sep_reegex);
-    free(tokens);
-    return 0;
+    return tokenlist;
 }
