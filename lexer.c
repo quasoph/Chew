@@ -125,7 +125,7 @@ TokenList *lexer(FILE *file) {
     } else if (space_rgx != 0) {
         fprintf(stderr, "Failed to compile space regex.\n");
     }
-
+    printf("Tokens generated from file:\n");
     while ((current = fgetc(file)) != EOF) {
 
         char ch = (char) current;
@@ -196,11 +196,6 @@ TokenList *lexer(FILE *file) {
         printf("[ %s ] ", token->value);
         free(token);
     }
-    printf("\nTokens compiled (in order of appearance):\n");
-    int i;
-    for (i = 12; i < num_tokens; i++) {
-        printf("%s\n", tokenlist->tokens[i].value);
-    }    
     regfree(&op_reegex);
     regfree(&sep_reegex);
     return tokenlist;

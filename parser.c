@@ -7,7 +7,7 @@
 // LL(1) recursive descent parser.
 int i;
 
-int accepttype(Token *token, TokenType predicted) {
+int acceptnonterm(Token *token, TokenType predicted) {
     if (token->type == predicted) {
         i++;
         return 1;
@@ -16,7 +16,7 @@ int accepttype(Token *token, TokenType predicted) {
     }
 }
 
-int acceptvalue(Token *token, char predicted) {
+int acceptterm(Token *token, char predicted) {
     if (token->value == strdup(&predicted)) {
         i++;
         return 1;
@@ -25,49 +25,46 @@ int acceptvalue(Token *token, char predicted) {
     }
 }
 
-int expecttype(Token *token, TokenType predicted) {
-    if (accepttype(token, predicted)) {
-        return 1;
-    } else {
-        printf("Unexpected token.");
-        return 0;
-    }
-}
-
-int expectvalue(Token *token, char predicted) {
-    if (acceptvalue(token, predicted)) {
-        return 1;
-    } else {
-        printf("Unexpected token.");
-        return 0;
-    }
-}
-
 void Term(TokenList *tokens) {
-    if (accepttype(&tokens->tokens[i], STRING)) {
-        printf("Accepted type STRING");
-    } else if (accepttype(&tokens->tokens[i], INT)) {
-        printf("Accepted type INT");
-    } else if (accepttype(&tokens->tokens[i], IDENTIFIER)) {
-        printf("Accepted type IDENT");
+    printf("Beginning term.\n");
+    if (acceptnonterm(&tokens->tokens[i], STRING)) {
+    } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
+    } else if (acceptnonterm(&tokens->tokens[i], INT)) {
+        // arithmetic options here
     } else {
         printf("Syntax error.");
     }
+    // generate Term node
 }
 
 void Statement(TokenList *tokens) {
-    if (accepttype(&tokens->tokens[i], TYPEDEF)) {
-        expecttype(&tokens->tokens[i], IDENTIFIER);
-        expectvalue(&tokens->tokens[i], '=');
+    printf("Beginning statement.\n");
+    if (acceptnonterm(&tokens->tokens[i], TYPEDEF)) {
+        acceptnonterm(&tokens->tokens[i], IDENTIFIER);
+        acceptterm(&tokens->tokens[i], '=');
         Term(tokens);
+        // generate declaration node
+    } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
+        acceptterm(&tokens->tokens[i], '=');
+        Term(tokens);
+        // generate variable setting node
+    } else if (acceptterm(&tokens->tokens[i], 'IF')) {
+        Term(tokens);
+        acceptterm(&tokens->tokens[i], 'THEN');
+        Statement(tokens);
+        // generate ifthen or ifelse node
     }
 }
 
+void Block(TokenList *tokens) {
+    printf("Beginning block.\n");
+    Statement(tokens);
+    // generate Block node
+}
 
 int parser(TokenList *tokens) {
     i=0;
-    Token token = tokens->tokens[i];
-    printf("\nStarting at index %d, token %s.\n", i, token.value);
+    printf("\nStarting at index %d, token %s.\n", i, tokens->tokens[i].value);
     Statement(tokens);
     return 0;
 }
