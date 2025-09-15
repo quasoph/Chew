@@ -16,8 +16,8 @@ int acceptnonterm(Token *token, TokenType predicted) {
     }
 }
 
-int acceptterm(Token *token, char predicted) {
-    if (token->value == strdup(&predicted)) {
+int acceptterm(Token *token, char *predicted) {
+    if (strcmp(token->value, predicted) == 0) {
         i++;
         return 1;
     } else {
@@ -26,7 +26,6 @@ int acceptterm(Token *token, char predicted) {
 }
 
 void Term(TokenList *tokens) {
-    printf("Beginning term.\n");
     if (acceptnonterm(&tokens->tokens[i], STRING)) {
     } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
     } else if (acceptnonterm(&tokens->tokens[i], INT)) {
@@ -38,33 +37,40 @@ void Term(TokenList *tokens) {
 }
 
 void Statement(TokenList *tokens) {
-    printf("Beginning statement.\n");
     if (acceptnonterm(&tokens->tokens[i], TYPEDEF)) {
         acceptnonterm(&tokens->tokens[i], IDENTIFIER);
-        acceptterm(&tokens->tokens[i], '=');
+        acceptterm(&tokens->tokens[i], "=");
         Term(tokens);
+        printf("\nDeclaration generated.");
         // generate declaration node
     } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
-        acceptterm(&tokens->tokens[i], '=');
+        acceptterm(&tokens->tokens[i], "=");
         Term(tokens);
+        printf("\nVariable assignment generated.");
         // generate variable setting node
-    } else if (acceptterm(&tokens->tokens[i], 'IF')) {
-        Term(tokens);
-        acceptterm(&tokens->tokens[i], 'THEN');
+    } else if (acceptterm(&tokens->tokens[i], "IF")) {
         Statement(tokens);
+        acceptterm(&tokens->tokens[i], "THEN");
+        Statement(tokens);
+        printf("\nIf/then statement generated.");
         // generate ifthen or ifelse node
+    } else {
+        printf("\nNo statement found.");
     }
 }
 
 void Block(TokenList *tokens) {
-    printf("Beginning block.\n");
+    // for later: ensure all variable assignments are preceded by declarations
     Statement(tokens);
     // generate Block node
 }
 
 int parser(TokenList *tokens) {
     i=0;
-    printf("\nStarting at index %d, token %s.\n", i, tokens->tokens[i].value);
-    Statement(tokens);
+    printf("\nStarting at index %d, token %s.", i, tokens->tokens[i].value);
+    while (acceptterm(&tokens->tokens[i], ".") == 0) {
+        Block(tokens);
+    }
+    printf("\nFile read.");
     return 0;
 }

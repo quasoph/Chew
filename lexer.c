@@ -29,6 +29,9 @@ Token *generate_keyword_or_identifier(char *current) {
     } else if(strcmp(current, "if") == 0){
         token->type = KEYWORD;
         token->value = strdup("IF");
+    } else if (strcmp(current, "then") == 0){
+        token->type = KEYWORD;
+        token->value = strdup("THEN");
     } else if(strcmp(current, "do") == 0) {
         token->type = KEYWORD;
         token->value = strdup("DO");

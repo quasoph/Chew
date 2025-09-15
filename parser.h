@@ -14,7 +14,7 @@ typedef struct {
 
 int i;
 int acceptnonterm(Token *token, TokenType predicted);
-int acceptterm(Token *token, char predicted);
+int acceptterm(Token *token, char *predicted);
 void Term(TokenList *token);
 void Statement(TokenList *token);
 int parser(TokenList *tokens);

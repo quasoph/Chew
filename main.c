@@ -11,7 +11,8 @@ int main() {
     file = fopen("testlang.tl", "r");
     printf("---- STEP ONE: TOKEN GENERATION ----\n");
     TokenList *tokens = lexer(file);
-    printf("\n---- STEP TWO: BUILDING THE ABSTRACT SYNTAX TREE ----\n");
+    printf("\n ");
+    printf("\n---- STEP TWO: BUILDING THE ABSTRACT SYNTAX TREE ----");
     parser(tokens);
     free(tokens);
     return 0;
