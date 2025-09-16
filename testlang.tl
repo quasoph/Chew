@@ -1,2 +1,2 @@
-int blah = 1
-blah = 2.
+str blah = "blah"
+if num = 4 then blah = "notblah".

@@ -47,7 +47,7 @@ Token *generate_keyword_or_identifier(char *current) {
     } else if(strcmp(current, "int") == 0) {
         token->type = TYPEDEF;
         token->value = strdup("INT");
-    } else if(strcmp(current, "string") == 0) {
+    } else if(strcmp(current, "str") == 0) {
         token->type = TYPEDEF;
         token->value = strdup("STRING");
     } else {
