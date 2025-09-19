@@ -3,14 +3,26 @@
 #include "lexer.h"
 
 typedef enum {
-    LEAF,
-    IFELSE
+    DECL,
+    VAR_ASSIGN,
+    IF_THEN,
+    TERMINAL,
+    TERM,
+    STATEMENT,
+    BLOCK,
+    ROOT
 } NodeType;
 
 typedef struct {
-    char *value;
+    union {
+        int value;
+        struct {
+            struct ASTNode* left;
+            struct ASTNode* right;
+        } children;
+    };
     NodeType type;
-} GenerateNode;
+} ASTNode;
 
 int i;
 int acceptnonterm(Token *token, TokenType predicted);
