@@ -3,13 +3,13 @@
 #include <string.h>
 #include "parser.h"
 #include "lexer.h"
-
 // LL(1) recursive descent parser.
 int i;
 ASTNode GenerateNode(ASTNode *left, ASTNode *right, NodeType *type) {
-    GenerateNode->left = left;
-    GenerateNode->right = right;
-    GenerateNode->type = type;
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->left = left;
+    node->right = right;
+    node->type = type;
 }
 
 int acceptnonterm(Token *token, TokenType predicted) {
@@ -38,7 +38,7 @@ void Term(TokenList *tokens) {
     } else {
         printf("Syntax error.");
     }
-    node->type = TERM;
+    GenerateNode(NULL, NULL, TERM);
 }
 
 void Statement(TokenList *tokens) {
@@ -47,36 +47,40 @@ void Statement(TokenList *tokens) {
         acceptterm(&tokens->tokens[i], "=");
         Term(tokens);
         printf("\nDeclaration generated.");
-        // generate declaration node
+        currentNode->right = GenerateNode(NULL, NULL, DECL);
+        currentNode = currentNode->right;
     } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
         acceptterm(&tokens->tokens[i], "=");
         Term(tokens);
         printf("\nVariable assignment generated.");
-        // generate variable setting node
+        currentNode->right = GenerateNode(NULL, NULL, VAR_ASSIGN);
+        currentNode = currentNode->right;
     } else if (acceptterm(&tokens->tokens[i], "IF")) {
         Statement(tokens);
         acceptterm(&tokens->tokens[i], "THEN");
         Statement(tokens);
         printf("\nIf/then statement generated.");
-        // generate ifthen or ifelse node
+        currentNode->right = GenerateNode(NULL, NULL, IF_THEN);
+        currentNode = currentNode->right;
     } else {
         printf("\nNo statement found.");
     }
-    node->type = STATEMENT;
+    GenerateNode(NULL, NULL, STATEMENT);
 }
 
 void Block(TokenList *tokens) {
     // for later: ensure all variable assignments are preceded by declarations
     Statement(tokens);
-    node->type = BLOCK;
+    currentNode->right = GenerateNode(NULL, NULL, BLOCK);
+    currentNode = currentNode->right;
 }
 
 int parser(TokenList *tokens) {
     i=0;
     printf("\nStarting at index %d, token %s.", i, tokens->tokens[i].value);
 
-    root = GenerateNode(NULL, NULL, ROOT);
-    // GenerateNode(left->left) or something
+    ASTNode root = GenerateNode(NULL, NULL, ROOT);
+    currentNode = root;
 
     while (acceptterm(&tokens->tokens[i], ".") == 0) {
         Block(tokens);
@@ -84,3 +88,4 @@ int parser(TokenList *tokens) {
     printf("\nFile read.");
     return 0;
 }
+// make an AST printing function next to use in main.c

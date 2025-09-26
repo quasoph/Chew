@@ -14,13 +14,9 @@ typedef enum {
 } NodeType;
 
 typedef struct {
-    union {
-        int value;
-        struct {
-            struct ASTNode* left;
-            struct ASTNode* right;
-        } children;
-    };
+    int value;
+    struct ASTNode* left;
+    struct ASTNode* right;
     NodeType type;
 } ASTNode;
 
