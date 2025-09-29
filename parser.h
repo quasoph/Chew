@@ -13,8 +13,8 @@ typedef enum {
     ROOT
 } NodeType;
 
-typedef struct {
-    int value;
+typedef struct ASTNode {
+    char *value;
     struct ASTNode* left;
     struct ASTNode* right;
     NodeType type;
