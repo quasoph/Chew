@@ -38,7 +38,7 @@ int acceptterm(Token *token, char *predicted) {
     }
 }
 
-void Term(TokenList *tokens) {
+ASTNode Term(TokenList *tokens) {
     if (acceptnonterm(&tokens->tokens[i], STRING)) {
     } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
     } else if (acceptnonterm(&tokens->tokens[i], INT)) {
@@ -47,30 +47,34 @@ void Term(TokenList *tokens) {
         printf("Syntax error.");
     }
     printf("\nTerm generated.");
-    GenerateNode(NULL, NULL, tokens->tokens[i-1].value, TERM);
+    leaf = GenerateNode(NULL, NULL, tokens->tokens[i-1].value, TERM);
+    return leaf;
 }
 
-void Statement(TokenList *tokens) {
+ASTNode Statement(TokenList *tokens) {
     if (acceptnonterm(&tokens->tokens[i], TYPEDEF)) {
         acceptnonterm(&tokens->tokens[i], IDENTIFIER);
         acceptterm(&tokens->tokens[i], "=");
-        Term(tokens);
-        printf("\nDeclaration generated.");
-        currentNode.right = GenerateNode(NULL, NULL, tokens->tokens[i-1].value, DECL);
-        currentNode = *currentNode.right;
+        term = Term(tokens);
+        currentNode = GenerateNode("DECLARATION", DECL);
+        currentNode->left = GenerateNode(tokens->tokens[i-1].value, IDENTIFIER);
+        currentNode->right = term;
+        return currentNode;
+
     } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
+        ident = Term(tokens);
         acceptterm(&tokens->tokens[i], "=");
-        Term(tokens);
-        printf("\nVariable assignment generated.");
-        currentNode.right = GenerateNode(NULL, NULL, tokens->tokens[i-1].value, VAR_ASSIGN);
-        currentNode = *currentNode.right;
+        term = Term(tokens);
+        currentNode = GenerateNode(ident, term, "VAR_ASSIGN", VAR_ASSIGN);
+        return currentNode;
+
     } else if (acceptterm(&tokens->tokens[i], "IF")) {
-        Statement(tokens);
+        stmt1 = Statement(tokens);
         acceptterm(&tokens->tokens[i], "THEN");
-        Statement(tokens);
-        printf("\nIf/then statement generated.");
-        currentNode.right = GenerateNode(NULL, NULL, tokens->tokens[i-1].value, IF_THEN);
-        currentNode = *currentNode.right;
+        stmt2 = Statement(tokens);
+        currentNode = GenerateNode(stmt1, stmt2, "IF_THEN", IF_THEN);
+        return currentNode;
+
     } else {
         printf("\nNo statement found.");
     }
