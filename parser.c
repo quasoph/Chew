@@ -17,7 +17,17 @@ ASTNode *GenerateNode(ASTNode *left, ASTNode *right, char *value, NodeType type)
 }
 
 void DrawTree(ASTNode *current) {
-    printf(" Node value: %s", current->value);
+    printf("\nNode value: %s", current->value);
+    if (current->left != NULL) {
+        printf("\nLeft child value: %s", current->left->value);
+    } else {
+        printf("\nNo left child.");
+    }
+    if (current->right != NULL) {
+        printf("\nRight child value: %s", current->right->value);
+    } else {
+        printf("\nNo right child.");
+    }
 }
 
 int acceptnonterm(Token *token, TokenType predicted) {
@@ -38,65 +48,56 @@ int acceptterm(Token *token, char *predicted) {
     }
 }
 
-ASTNode Term(TokenList *tokens) {
-    if (acceptnonterm(&tokens->tokens[i], STRING)) {
-    } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
-    } else if (acceptnonterm(&tokens->tokens[i], INT)) {
+ASTNode Term(Token *token) {
+    if (acceptnonterm(token, STRING)) {
+    } else if (acceptnonterm(token, IDENTIFIER)) {
+    } else if (acceptnonterm(token, INT)) {
         // arithmetic options here
     } else {
         printf("Syntax error.");
     }
-    printf("\nTerm generated.");
-    leaf = GenerateNode(NULL, NULL, tokens->tokens[i-1].value, TERM);
+    ASTNode leaf = *GenerateNode(NULL, NULL, token->value, TERM);
     return leaf;
 }
 
 ASTNode Statement(TokenList *tokens) {
     if (acceptnonterm(&tokens->tokens[i], TYPEDEF)) {
         acceptnonterm(&tokens->tokens[i], IDENTIFIER);
+        ASTNode ident = Term(&tokens->tokens[i-1]);
         acceptterm(&tokens->tokens[i], "=");
-        term = Term(tokens);
-        currentNode = GenerateNode("DECLARATION", DECL);
-        currentNode->left = GenerateNode(tokens->tokens[i-1].value, IDENTIFIER);
-        currentNode->right = term;
-        return currentNode;
+        ASTNode term = Term(&tokens->tokens[i]);
+        currentNode = *GenerateNode(&ident, &term, "DECLARATION", DECL);
 
     } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
-        ident = Term(tokens);
+        ASTNode ident = Term(&tokens->tokens[i-1]);
         acceptterm(&tokens->tokens[i], "=");
-        term = Term(tokens);
-        currentNode = GenerateNode(ident, term, "VAR_ASSIGN", VAR_ASSIGN);
-        return currentNode;
+        ASTNode term = Term(&tokens->tokens[i]);
+        currentNode = *GenerateNode(&ident, &term, "VAR_ASSIGN", VAR_ASSIGN);
 
     } else if (acceptterm(&tokens->tokens[i], "IF")) {
-        stmt1 = Statement(tokens);
+        ASTNode stmt1 = Statement(tokens);
         acceptterm(&tokens->tokens[i], "THEN");
-        stmt2 = Statement(tokens);
-        currentNode = GenerateNode(stmt1, stmt2, "IF_THEN", IF_THEN);
-        return currentNode;
+        ASTNode stmt2 = Statement(tokens);
+        currentNode = *GenerateNode(&stmt1, &stmt2, "IF_THEN", IF_THEN);
 
     } else {
         printf("\nNo statement found.");
     }
     DrawTree(&currentNode);
-    GenerateNode(NULL, NULL, "STATEMENT", STATEMENT);
+    return currentNode;
 }
 
-void Block(TokenList *tokens) {
+ASTNode Block(TokenList *tokens) {
     // for later: ensure all variable assignments are preceded by declarations
-    Statement(tokens);
-    currentNode.right = GenerateNode(NULL, NULL, tokens->tokens[i-1].value, BLOCK);
-    currentNode = *currentNode.right;
+    ASTNode stmt = Statement(tokens);
+    currentNode = *GenerateNode(NULL, &stmt, "BLOCK", BLOCK);
     DrawTree(&currentNode);
+    return currentNode;
 }
 
 int parser(TokenList *tokens) {
     i=0;
     printf("\nStarting at index %d, token %s.", i, tokens->tokens[i].value);
-
-    ASTNode root = *GenerateNode(NULL, NULL, "ROOT", ROOT);
-    currentNode = root;
-    DrawTree(&currentNode);
 
     while (acceptterm(&tokens->tokens[i], ".") == 0) {
         Block(tokens);
@@ -104,4 +105,3 @@ int parser(TokenList *tokens) {
     printf("\nFile read.");
     return 0;
 }
-// make an AST printing function next to use in main.c

@@ -23,8 +23,9 @@ typedef struct ASTNode {
 int i;
 int acceptnonterm(Token *token, TokenType predicted);
 int acceptterm(Token *token, char *predicted);
-void Term(TokenList *token);
-void Statement(TokenList *token);
+ASTNode Term(Token *token);
+ASTNode Statement(TokenList *tokens);
+ASTNode Block(TokenList *tokens);
 int parser(TokenList *tokens);
 
 #endif
