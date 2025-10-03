@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include "lexer.h"
 #include "parser.h"
+#include "asm_gen.h"
 
 int main() {
     FILE *file;
@@ -14,7 +15,8 @@ int main() {
     printf("\n ");
     printf("\n---- STEP TWO: BUILDING THE ABSTRACT SYNTAX TREE ----");
     printf("\nNote that printed output shows abstract nodes & children working upwards from leaves.");
-    parser(tokens);
+    ASTNode *node = parser(tokens); // amend parser to produce a full AST that can be worked through by the code generator
+    code_generator(node);
     free(tokens);
     return 0;
 }
