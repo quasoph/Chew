@@ -16,6 +16,7 @@ int main() {
     printf("\n---- STEP TWO: BUILDING THE ABSTRACT SYNTAX TREE ----");
     printf("\nNote that printed output shows abstract nodes & children working upwards from leaves.");
     ASTNode *node = parser(tokens); // amend parser to produce a full AST that can be worked through by the code generator
+    printf("\n---- STEP THREE: GENERATING ASSEMBLY CODE");
     code_generator(node);
     free(tokens);
     return 0;

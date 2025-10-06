@@ -13,6 +13,12 @@ typedef enum {
     ROOT
 } NodeType;
 
+typedef enum {
+    LEFT,
+    RIGHT,
+    BOTH
+} NodeSearch;
+
 typedef struct ASTNode {
     char *value;
     struct ASTNode* left;
@@ -26,6 +32,6 @@ int acceptterm(Token *token, char *predicted);
 ASTNode Term(Token *token);
 ASTNode Statement(TokenList *tokens);
 ASTNode Block(TokenList *tokens);
-int parser(TokenList *tokens);
+ASTNode *parser(TokenList *tokens);
 
 #endif

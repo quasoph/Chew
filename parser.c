@@ -5,30 +5,22 @@
 #include "lexer.h"
 // LL(1) recursive descent parser.
 int i;
+ASTNode root;
 ASTNode currentNode;
 
-ASTNode *GenerateNode(ASTNode *left, ASTNode *right, char *value, NodeType type) {
+ASTNode *NewNode(char *value, NodeType type) {
     ASTNode *node = malloc(sizeof(ASTNode));
-    node->left = left;
-    node->right = right;
     node->value = value;
     node->type = type;
     return node;
 }
 
-void DrawTree(ASTNode *current) {
-    printf("\nNode value: %s", current->value);
-    if (current->left != NULL) {
-        printf("\nLeft child value: %s", current->left->value);
-    } else {
-        printf("\nNo left child.");
-    }
-    if (current->right != NULL) {
-        printf("\nRight child value: %s", current->right->value);
-    } else {
-        printf("\nNo right child.");
-    }
+ASTNode *AddChildren(ASTNode *parent, ASTNode *left, ASTNode *right) {
+    parent->left = left;
+    parent->right = right;
+    return parent;
 }
+
 
 int acceptnonterm(Token *token, TokenType predicted) {
     if (token->type == predicted) {
@@ -56,52 +48,57 @@ ASTNode Term(Token *token) {
     } else {
         printf("Syntax error.");
     }
-    ASTNode leaf = *GenerateNode(NULL, NULL, token->value, TERM);
-    return leaf;
+    return *NewNode(token->value, TERM);
 }
 
 ASTNode Statement(TokenList *tokens) {
     if (acceptnonterm(&tokens->tokens[i], TYPEDEF)) {
         acceptnonterm(&tokens->tokens[i], IDENTIFIER);
-        ASTNode ident = Term(&tokens->tokens[i-1]);
+        ASTNode term1 = Term(&tokens[i-1]);
         acceptterm(&tokens->tokens[i], "=");
-        ASTNode term = Term(&tokens->tokens[i]);
-        currentNode = *GenerateNode(&ident, &term, "DECLARATION", DECL);
+        ASTNode term2 = Term(&tokens[i]);
+        ASTNode declNode = *NewNode("DECLARATION", DECL);
+        *AddChildren(&declNode, &term1, &term2);
+        return declNode;
 
     } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
-        ASTNode ident = Term(&tokens->tokens[i-1]);
+        ASTNode term1 = Term(tokens[i]);
         acceptterm(&tokens->tokens[i], "=");
-        ASTNode term = Term(&tokens->tokens[i]);
-        currentNode = *GenerateNode(&ident, &term, "VAR_ASSIGN", VAR_ASSIGN);
+        ASTNode term2 = Term(tokens[i]);
+        ASTNode varAssignNode = *NewNode("VAR_ASSIGN", VAR_ASSIGN);
+        *AddChildren(&varAssignNode, &term1, &term2);
+        return varAssignNode;
 
     } else if (acceptterm(&tokens->tokens[i], "IF")) {
         ASTNode stmt1 = Statement(tokens);
         acceptterm(&tokens->tokens[i], "THEN");
         ASTNode stmt2 = Statement(tokens);
-        currentNode = *GenerateNode(&stmt1, &stmt2, "IF_THEN", IF_THEN);
+        ASTNode ifThenNode = *NewNode("IF_THEN", IF_THEN);
+        *AddChildren(&ifThenNode, &stmt1, &stmt2);
+        return ifThenNode;
 
     } else {
         printf("\nNo statement found.");
     }
-    DrawTree(&currentNode);
-    return currentNode;
 }
 
 ASTNode Block(TokenList *tokens) {
     // for later: ensure all variable assignments are preceded by declarations
     ASTNode stmt = Statement(tokens);
-    currentNode = *GenerateNode(NULL, &stmt, "BLOCK", BLOCK);
-    DrawTree(&currentNode);
-    return currentNode;
+    ASTNode stmtNode = *NewNode("STATEMENT", STMT);
+    *AddChildren(&stmtNode, NULL, &stmt);
+    return stmtNode;
 }
 
-int parser(TokenList *tokens) {
+ASTNode *parser(TokenList *tokens) {
     i=0;
     printf("\nStarting at index %d, token %s.", i, tokens->tokens[i].value);
 
+    ASTNode root = *NewNode("ROOT", ROOT);
     while (acceptterm(&tokens->tokens[i], ".") == 0) {
-        Block(tokens);
+        ASTNode block = Block(tokens);
+        *AddChildren(&root, NULL, &block);
     }
     printf("\nFile read.");
-    return 0;
+    return &root;
 }
