@@ -20,18 +20,27 @@ typedef enum {
 } NodeSearch;
 
 typedef struct ASTNode {
-    char *value;
-    struct ASTNode* left;
-    struct ASTNode* right;
-    NodeType type;
+    union {
+        int num;
+        struct {
+            char *value;
+            struct ASTNode* left;
+            struct ASTNode* right;
+            NodeType type;
+        };
+    };
 } ASTNode;
 
 int i;
 int acceptnonterm(Token *token, TokenType predicted);
 int acceptterm(Token *token, char *predicted);
-ASTNode Term(Token *token);
-ASTNode Statement(TokenList *tokens);
-ASTNode Block(TokenList *tokens);
+ASTNode *NewNode(char *value, NodeType type);
+ASTNode *AddChildren(ASTNode *parent, ASTNode *left, ASTNode *right);
+ASTNode *Term(Token *token);
+ASTNode *Statement(TokenList *tokens);
+ASTNode *Block(TokenList *tokens);
 ASTNode *parser(TokenList *tokens);
+void DrawTree(ASTNode *root);
+void FreeTree(ASTNode *root);
 
 #endif
