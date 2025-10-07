@@ -1,40 +1,128 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "parser.h"
+#include "lexer.h"
+// LL(1) recursive descent parser.
+int i;
+ASTNode root;
+ASTNode currentNode;
 
-typedef enum {
-    BOOL,
-    STRING,
-    INT,
-    FUNC
-} DeclarationType;
+ASTNode *NewNode(char *value, NodeType type) {
+    ASTNode *node = malloc(sizeof(ASTNode));
+    node->value = value;
+    node->type = type;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
 
-struct Declaration {
-    char *name;
-    DeclarationType *type;
-    char *value;
-    char *code;
-    char *next;
-};
+ASTNode *AddChildren(ASTNode *parent, ASTNode *left, ASTNode *right) {
+    parent->left = left;
+    parent->right = right;
+    return parent;
+}
 
-typedef enum {
-    STMT_DECL,
-    STMT_EXPR,
-    STMT_IF_ELSE,
-    STMT_FOR,
-    STMT_PRINT,
-    STMT_RETURN,
-    STMT_BLOCK
-} StatementType;
+void DrawTree(ASTNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    printf("\nNode value: %s", root->value);
+    printf("\nLeft child:");
+    DrawTree(root->left);
+    printf("\nRight child:");
+    DrawTree(root->right);
+}
 
-struct Statement {
-    StatementType kind;
-    struct decl *decl;
-    struct expr *init_expr;
-    struct expr *expr;
-    struct expr *next_expr;
-    struct stmt *body;
-    struct stmt *else_body;
-    struct stmt *next;
-};
+void FreeTree(ASTNode *root) {
+    if (root == NULL) {
+        return;
+    }
+    FreeTree(root->left);
+    FreeTree(root->right);
+    free(root);
+}
 
+int acceptnonterm(Token *token, TokenType predicted) {
+    if (token->type == predicted) {
+        i++;
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int acceptterm(Token *token, char *predicted) {
+    if (strcmp(token->value, predicted) == 0) {
+        i++;
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+ASTNode *Term(Token *token) {
+    if (acceptnonterm(token, STRING)) {
+    } else if (acceptnonterm(token, IDENTIFIER)) {
+    } else if (acceptnonterm(token, INT)) {
+        // arithmetic options here
+    } else {
+        printf("Syntax error.");
+    }
+    return NewNode(token->value, TERM);
+}
+
+ASTNode *Statement(TokenList *tokens) {
+    if (acceptnonterm(&tokens->tokens[i], TYPEDEF)) {
+        acceptnonterm(&tokens->tokens[i], IDENTIFIER);
+        ASTNode *term1 = Term(&tokens->tokens[i-1]);
+        acceptterm(&tokens->tokens[i], "=");
+        ASTNode *term2 = Term(&tokens->tokens[i]);
+        ASTNode *declNode = NewNode("DECLARATION", DECL);
+        declNode = AddChildren(declNode, term1, term2);
+        return declNode;
+
+    } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
+        ASTNode *term1 = Term(&tokens->tokens[i]);
+        acceptterm(&tokens->tokens[i], "=");
+        ASTNode *term2 = Term(&tokens->tokens[i]);
+        ASTNode *varAssignNode = NewNode("VAR_ASSIGN", VAR_ASSIGN);
+        varAssignNode = AddChildren(varAssignNode, term1, term2);
+        return varAssignNode;
+
+    } else if (acceptterm(&tokens->tokens[i], "IF")) {
+        ASTNode *stmt1 = Statement(tokens);
+        acceptterm(&tokens->tokens[i], "THEN");
+        ASTNode *stmt2 = Statement(tokens);
+        ASTNode *ifThenNode = NewNode("IF_THEN", IF_THEN);
+        ifThenNode = AddChildren(ifThenNode, stmt1, stmt2);
+        return ifThenNode;
+    } else {
+        printf("\nNo statement found.");
+        ASTNode *emptyNode;
+        emptyNode->num = 0;
+        return emptyNode;
+    }
+}
+
+ASTNode *Block(TokenList *tokens) {
+    // for later: ensure all variable assignments are preceded by declarations
+    ASTNode *stmt = Statement(tokens);
+    ASTNode *stmtNode = NewNode("STATEMENT", STATEMENT);
+    stmtNode = AddChildren(stmtNode, NULL, stmt);
+    return stmtNode;
+}
+
+ASTNode *parser(TokenList *tokens) {
+    i=0;
+    printf("\nStarting at index %d, token %s.", i, tokens->tokens[i].value);
+
+    ASTNode *root = NewNode("ROOT", ROOT);
+    while (acceptterm(&tokens->tokens[i], ".") == 0) {
+        ASTNode *block = Block(tokens);
+        root = AddChildren(root, NULL, block);
+    }
+    printf("%s", root->right->right->value);
+    printf("\nFile read.");
+    return root;
+}
