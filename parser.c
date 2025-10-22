@@ -28,9 +28,7 @@ void DrawTree(ASTNode *root) {
         return;
     }
     printf("\nNode value: %s", root->value);
-    printf("\nLeft child:");
     DrawTree(root->left);
-    printf("\nRight child:");
     DrawTree(root->right);
 }
 
@@ -69,21 +67,15 @@ ASTNode *Term(Token *token) {
     } else {
         printf("Syntax error.");
     }
-    return NewNode(token->value, TERM);
+    ASTNode *new_node = NewNode(token->value, TERM);
+    new_node->token_type = token->type;
+    return new_node;
 }
 
 ASTNode *Statement(TokenList *tokens) {
-    if (acceptnonterm(&tokens->tokens[i], TYPEDEF)) {
-        acceptnonterm(&tokens->tokens[i], IDENTIFIER);
-        ASTNode *term1 = Term(&tokens->tokens[i-1]);
-        acceptterm(&tokens->tokens[i], "=");
-        ASTNode *term2 = Term(&tokens->tokens[i]);
-        ASTNode *declNode = NewNode("DECLARATION", DECL);
-        declNode = AddChildren(declNode, term1, term2);
-        return declNode;
 
-    } else if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
-        ASTNode *term1 = Term(&tokens->tokens[i]);
+    if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
+        ASTNode *term1 = Term(&tokens->tokens[i-1]);
         acceptterm(&tokens->tokens[i], "=");
         ASTNode *term2 = Term(&tokens->tokens[i]);
         ASTNode *varAssignNode = NewNode("VAR_ASSIGN", VAR_ASSIGN);
@@ -105,24 +97,15 @@ ASTNode *Statement(TokenList *tokens) {
     }
 }
 
-ASTNode *Block(TokenList *tokens) {
-    // for later: ensure all variable assignments are preceded by declarations
-    ASTNode *stmt = Statement(tokens);
-    ASTNode *stmtNode = NewNode("STATEMENT", STATEMENT);
-    stmtNode = AddChildren(stmtNode, NULL, stmt);
-    return stmtNode;
-}
-
 ASTNode *parser(TokenList *tokens) {
     i=0;
     printf("\nStarting at index %d, token %s.", i, tokens->tokens[i].value);
 
     ASTNode *root = NewNode("ROOT", ROOT);
     while (acceptterm(&tokens->tokens[i], ".") == 0) {
-        ASTNode *block = Block(tokens);
-        root = AddChildren(root, NULL, block);
+        ASTNode *stmt = Statement(tokens);
+        root = AddChildren(root, NULL, stmt);
     }
-    printf("%s", root->right->right->value);
     printf("\nFile read.");
     return root;
 }

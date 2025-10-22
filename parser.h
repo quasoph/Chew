@@ -3,21 +3,12 @@
 #include "lexer.h"
 
 typedef enum {
-    DECL,
     VAR_ASSIGN,
     IF_THEN,
-    TERMINAL,
     TERM,
     STATEMENT,
-    BLOCK,
     ROOT
 } NodeType;
-
-typedef enum {
-    LEFT,
-    RIGHT,
-    BOTH
-} NodeSearch;
 
 typedef struct ASTNode {
     union {
@@ -27,6 +18,8 @@ typedef struct ASTNode {
             struct ASTNode* left;
             struct ASTNode* right;
             NodeType type;
+            int reg;
+            TokenType token_type;
         };
     };
 } ASTNode;

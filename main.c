@@ -18,6 +18,9 @@ int main() {
     ASTNode *node = parser(tokens); // amend parser to produce a full AST that can be worked through by the code generator
     DrawTree(node);
     printf("\n---- STEP THREE: GENERATING ASSEMBLY CODE");
+    printf("\n.section .text");
+	printf("\n  .global _start");
+    printf("\n\n_start:");
     code_generator(node);
     FreeTree(node);
     free(tokens);
