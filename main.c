@@ -19,7 +19,8 @@ int main() {
     DrawTree(node);
     printf("\n---- STEP THREE: GENERATING ASSEMBLY CODE");
     printf("\n.section .text");
-	printf("\n  .global _start");
+    global_variable_declarer(tokens);
+	printf("\n.global _start");
     printf("\n\n_start:");
     code_generator(node);
     FreeTree(node);
