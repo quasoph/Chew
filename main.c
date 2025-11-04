@@ -9,7 +9,7 @@
 
 int main() {
     FILE *file;
-    file = fopen("testlang.tl", "r");
+    file = fopen("testlang.ch", "r");
     printf("---- STEP ONE: TOKEN GENERATION ----\n");
     TokenList *tokens = lexer(file);
     printf("\n ");
