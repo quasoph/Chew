@@ -9,7 +9,7 @@
 
 int main() {
     FILE *file;
-    file = fopen("testlang.tl", "r");
+    file = fopen("testlang.ch", "r");
     printf("---- STEP ONE: TOKEN GENERATION ----\n");
     TokenList *tokens = lexer(file);
     printf("\n ");
@@ -18,6 +18,10 @@ int main() {
     ASTNode *node = parser(tokens); // amend parser to produce a full AST that can be worked through by the code generator
     DrawTree(node);
     printf("\n---- STEP THREE: GENERATING ASSEMBLY CODE");
+    printf("\n.section .text");
+    global_variable_declarer(tokens);
+	printf("\n.global _start");
+    printf("\n\n_start:");
     code_generator(node);
     FreeTree(node);
     free(tokens);
