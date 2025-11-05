@@ -19,6 +19,7 @@ typedef struct ASTNode {
             struct ASTNode* right;
             NodeType type;
             int reg;
+            char *output;
             TokenType token_type;
         };
     };

@@ -81,6 +81,12 @@ void code_generator(ASTNode *node) {
     }
     switch (node->type) {
         case TERM:
+            if (node->left) {
+                code_generator(node->left);
+            }
+            if (node->right) {
+                code_generator(node->right);
+            }
             node->reg = scratch_alloc();
         /*
             node->reg = scratch_alloc();
@@ -97,39 +103,77 @@ void code_generator(ASTNode *node) {
             }
             printf("\nldr %s, =%s", scratch_name(node->reg), label);
             free(label);
-        */
-        case VAR_ASSIGN:
+        */ 
+            break;
+        case VAR_ASSIGN: {
+            if (node->left) {
+                code_generator(node->left);
+            }
+            if (node->right) {
+                code_generator(node->right);
+            }
         // variable assignment: stored in memory so far, yet to be loaded into register
+            char buf[1024];
+            char *at = buf;
             if (node->left && node->right) {
-                printf("\n");
-                printf("\nldr x%d, =_%s", node->left->reg, node->left->value);
+                at += sprintf(at, "\nldr x%d, =_%s", node->left->reg, node->left->value);
                 if (node->right->token_type == STRING) {
-                    printf("\nmov x%d, \"%s\"", node->right->reg, node->right->value);
+                    at += sprintf(at, "\nmov x%d, \"%s\"", node->right->reg, node->right->value);
                 } else if (node->right->token_type == INT) {
-                    printf("\nmov x%d, %s", node->right->reg, node->right->value);
+                    at += sprintf(at, "\nmov x%d, %s", node->right->reg, node->right->value);
                 } else if (node->right->token_type == IDENTIFIER) {
-                    printf("\nldr x%d, =_%s", node->right->reg, node->right->value);
+                    at += sprintf(at, "\nldr x%d, =_%s", node->right->reg, node->right->value);
                 }
                 
-                printf("\nstr x%d, [x%d]", node->right->reg, node->left->reg);
+                at += sprintf(at, "\nstr x%d, [x%d]", node->right->reg, node->left->reg);
                 node->reg = node->left->reg;
+                node->output = strdup(buf);
                 scratch_free(node->left->reg);
                 scratch_free(node->right->reg);
             }
+            break;}
         case IF_THEN:
+            if (node->left) {
+                code_generator(node->left);
+            }
+            if (node->right) {
+                code_generator(node->right);
+            }
             if (node->left && node->right) {
-                
+                ASTNode *cond = node->left;
+                ASTNode *then = node->right;
+                int rcond = cond->reg;
+                int rthen = then->reg;
+
+                char *label = label_name(node->reg);
+                printf("\n_%s:", label);
+                printf("\n    %s", then->output);
+
+                if (cond->type == VAR_ASSIGN) {
+                    printf("\ncmp %s, %s", scratch_name(rcond), cond->right->value);
+                    printf("\nbeq _%s", label);
+                }
                 
             }
+            break;
         case STATEMENT:
+            if (node->left) {
+                code_generator(node->left);
+            }
+            if (node->right) {
+                code_generator(node->right);
+            }
             printf("");
+            break;
         case ROOT:
+            if (node->left) {
+                code_generator(node->left);
+            }
+            if (node->right) {
+                code_generator(node->right);
+            }
             printf("");
+            break;
     }
-    if (node->left) {
-        code_generator(node->left);
-    }
-    if (node->right) {
-        code_generator(node->right);
-    }
+    
 }
