@@ -22,7 +22,7 @@ Chew currently emits assembly instructions but can be edited to save to file.
 
 Example .ch code
 ```
-if num = 4 then blah = "notblah"
+if num = 4 then blah = "notblah".
 ```
 
 Output (ARM64 assembly)
