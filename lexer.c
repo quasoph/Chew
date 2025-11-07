@@ -8,18 +8,9 @@
 size_t line_number = 0;
 
 Token *generate_keyword_or_identifier(char *current) {
-    /*
-    Token generator for keywords and identifiers.
-
-        Parameters
-        ----------
-        char *current : accepts value stored in pointer for currently read
-            char from file.
-
-        Outputs
-        ----------
-        Token token : token with type, value and line_num.
-    */
+    /* Token generator for keywords or identifiers.
+    Uses strcmp to match against specific strings. Anything else is classed as an identifier.
+    Accepts currently read characters as input, returns token of KEYWORD or IDENTIFIER type. */
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
 
@@ -54,12 +45,12 @@ Token *generate_keyword_or_identifier(char *current) {
         token->type = IDENTIFIER;
         token->value = strdup(current);
     }
-    //printf("Token generated: %s\n", token->value);
     return token;
 }
 
 Token *generate_operator(char *current) {
-    /* Token generator for operators. */
+    /* Token generator for operators.
+    Accepts currently read characters as input, returns token of OPERATOR type.*/
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
     token->type = OPERATOR;
@@ -68,7 +59,8 @@ Token *generate_operator(char *current) {
 }
 
 Token *generate_separator(char *current) {
-    /* Token generator for separators. */
+    /* Token generator for separators.
+    Accepts currently read characters as input, returns token of SEPARATOR type.*/
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
     token->type = SEPARATOR;
@@ -77,7 +69,8 @@ Token *generate_separator(char *current) {
 }
 
 Token *generate_string_literal(char *current) {
-    /* Token generator for strings. */
+    /* Token generator for strings.
+    Accepts currently read characters as input, returns token of STRING type.*/
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
     token->type = STRING;
@@ -86,7 +79,8 @@ Token *generate_string_literal(char *current) {
 }
 
 Token *generate_int_literal(char *current) {
-    /* Token generator for integers. */
+    /* Token generator for integers.
+    Accepts currently read characters as input, returns token of INT type.*/
     Token *token = malloc(sizeof(Token));
     token->line_num = line_number;
     token->type = INT;
@@ -95,16 +89,9 @@ Token *generate_int_literal(char *current) {
 }
 
 TokenList *lexer(FILE *file) {
-    /*
-    Regex lexer.
-        Parameters
-        ----------
-        FILE *file : file containing code for lexing.
-
-        Outputs
-        ----------
-        TokenList *tokens : set of tokens generated.
-    */
+    /* Lexer function.
+    Accepts a filename as input, returns a list of tokens from the file as output.
+    Uses regular expressions (RegEx) to group characters and sort into appropriate type to be tokenised. */
     int num_tokens = 12;
     int capacity = 16;
 
