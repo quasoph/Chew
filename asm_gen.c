@@ -151,7 +151,7 @@ char *code_generator(ASTNode *node, char *out, char *globl, int emit) {
                 if (node->right->token_type == STRING) {
                     globl += sprintf(globl, "\n.globl _%s", node->right->value);
                     globl += sprintf(globl, "\n_%s:", node->right->value);
-                    globl += sprintf(globl, "\n\t.quad 0");
+                    globl += sprintf(globl, "\n\t.asciz \"%s\"", node->right->value);
                     at += sprintf(at, "\nldr x%d, =_%s", node->right->reg, node->right->value);
                 } else if (node->right->token_type == INT) {
                     at += sprintf(at, "\nmov x%d, %s", node->right->reg, node->right->value);
