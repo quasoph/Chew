@@ -117,7 +117,7 @@ TokenList *lexer(FILE *file) {
     regex_t op_reegex;
     regex_t sep_reegex;
     regex_t space_reegex;
-    int operator_rgx = regcomp(&op_reegex, "\\+|=|-|/|!|\\*|\\%|\\||&", REG_EXTENDED);
+    int operator_rgx = regcomp(&op_reegex, "\\+|=|-|<|>|/|!|\\*|\\%|\\||&", REG_EXTENDED);
     int separator_rgx = regcomp(&sep_reegex, ";|\\(|\\)|\\{|\\}|,|\\.|\\[|\\]", REG_EXTENDED);
     int space_rgx = regcomp(&space_reegex, "[[:space:]]", REG_EXTENDED);
 

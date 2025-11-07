@@ -4,10 +4,13 @@
 
 typedef enum {
     VAR_ASSIGN,
+    VAR_LESS_THAN,
+    VAR_GREATER_THAN,
     IF_THEN,
     TERM,
     STATEMENT,
-    ROOT
+    ROOT,
+    EMPTY
 } NodeType;
 
 typedef struct ASTNode {
