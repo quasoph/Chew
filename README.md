@@ -22,7 +22,7 @@ Chew currently emits assembly instructions but can be edited to save to file.
 
 Example .ch code
 ```
-if num = 4 then blah = "notblah".
+if num > 4 then blah = "notblah".
 ```
 
 Output (ARM64 assembly)
@@ -37,7 +37,7 @@ _blah:
         .quad 0
 .globl _notblah
 _notblah:
-        .quad 0
+        .asciz "notblah"
 
 .globl _start
 
@@ -49,5 +49,5 @@ _.L0:
         str x1, [x0]
 
 cmp x0, 4
-beq _.L0
+bgt _.L0
 ```
