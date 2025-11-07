@@ -168,6 +168,10 @@ char *code_generator(ASTNode *node, char *out, char *globl, int emit) {
                 }
             }
             break;}
+        case VAR_LESS_THAN:
+            break;
+        case VAR_GREATER_THAN:
+            break;
         case IF_THEN:
             if (node->left) {
                 code_generator(node->left, out, globl, 0);
@@ -193,12 +197,16 @@ char *code_generator(ASTNode *node, char *out, char *globl, int emit) {
                 size_t wrote = buf_add_tabbed(ifat, remaining, then->output);
                 ifat += wrote;
                 remaining = (remaining > wrote) ? remaining - wrote : 0;
-
+                
+                ifat += sprintf(ifat, "\n");
+                ifat += sprintf(ifat, "\ncmp %s, %s", scratch_name(rcond), cond->right->value);
 
                 if (cond->type == VAR_ASSIGN) {
-                    ifat += sprintf(ifat, "\n");
-                    ifat += sprintf(ifat, "\ncmp %s, %s", scratch_name(rcond), cond->right->value);
                     ifat += sprintf(ifat, "\nbeq _%s", label);
+                } else if (cond->type == VAR_LESS_THAN) {
+                    ifat += sprintf(ifat, "\nblt _%s", label);
+                } else if (cond->type == VAR_GREATER_THAN) {
+                    ifat += sprintf(ifat, "\nbgt _%s", label);
                 }
                 
             }
@@ -230,6 +238,8 @@ char *code_generator(ASTNode *node, char *out, char *globl, int emit) {
             if (emit == 1) {
                 strcat(out, node->right->output);
             }
+            break;
+        case EMPTY:
             break;
     }
 

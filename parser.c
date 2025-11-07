@@ -41,6 +41,22 @@ void FreeTree(ASTNode *root) {
     free(root);
 }
 
+int expectnonterm(Token *token, TokenType predicted) {
+    if (token->type == predicted) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int expectterm(Token *token, char *predicted) {
+    if (strcmp(token->value, predicted) == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 int acceptnonterm(Token *token, TokenType predicted) {
     if (token->type == predicted) {
         i++;
@@ -60,29 +76,42 @@ int acceptterm(Token *token, char *predicted) {
 }
 
 ASTNode *Term(Token *token) {
-    if (acceptnonterm(token, STRING)) {
-    } else if (acceptnonterm(token, IDENTIFIER)) {
-    } else if (acceptnonterm(token, INT)) {
-        // arithmetic options here
-    } else {
-        printf("Syntax error.");
-    }
+    i++;
     ASTNode *new_node = NewNode(token->value, TERM);
     new_node->token_type = token->type;
     return new_node;
 }
 
 ASTNode *Statement(TokenList *tokens) {
-
-    if (acceptnonterm(&tokens->tokens[i], IDENTIFIER)) {
-        ASTNode *term1 = Term(&tokens->tokens[i-1]);
-        acceptterm(&tokens->tokens[i], "=");
-        ASTNode *term2 = Term(&tokens->tokens[i]);
-        ASTNode *varAssignNode = NewNode("VAR_ASSIGN", VAR_ASSIGN);
-        varAssignNode = AddChildren(varAssignNode, term1, term2);
-        return varAssignNode;
-
-    } else if (acceptterm(&tokens->tokens[i], "IF")) {
+    if (expectnonterm(&tokens->tokens[i], IDENTIFIER)) {
+        ASTNode *term1 = Term(&tokens->tokens[i]);
+        if (expectterm(&tokens->tokens[i], "=")) {
+            acceptterm(&tokens->tokens[i], "=");
+            ASTNode *term2 = Term(&tokens->tokens[i]);
+            ASTNode *varAssignNode = NewNode("VAR_ASSIGN", VAR_ASSIGN);
+            varAssignNode = AddChildren(varAssignNode, term1, term2);
+            return varAssignNode;
+        } else if (expectterm(&tokens->tokens[i], "<")) {
+            acceptterm(&tokens->tokens[i], "<");
+            ASTNode *term2 = Term(&tokens->tokens[i]);
+            ASTNode *varLessThanNode = NewNode("VAR_LESS_THAN", VAR_LESS_THAN);
+            varLessThanNode = AddChildren(varLessThanNode, term1, term2);
+            return varLessThanNode;
+        
+        } else if (expectterm(&tokens->tokens[i], ">")) {
+            acceptterm(&tokens->tokens[i], ">");
+            ASTNode *term2 = Term(&tokens->tokens[i]);
+            ASTNode *varGreaterThanNode = NewNode("VAR_GREATER_THAN", VAR_GREATER_THAN);
+            varGreaterThanNode = AddChildren(varGreaterThanNode, term1, term2);
+            return varGreaterThanNode;
+        } else {
+            ASTNode *emptyNode = NewNode("EMPTY", EMPTY);
+            emptyNode->num = 0;
+            return emptyNode;
+        }
+        
+    } else if (expectterm(&tokens->tokens[i], "IF")) {
+        acceptterm(&tokens->tokens[i], "IF");
         ASTNode *stmt1 = Statement(tokens);
         acceptterm(&tokens->tokens[i], "THEN");
         ASTNode *stmt2 = Statement(tokens);
@@ -90,8 +119,7 @@ ASTNode *Statement(TokenList *tokens) {
         ifThenNode = AddChildren(ifThenNode, stmt1, stmt2);
         return ifThenNode;
     } else {
-        printf("\nNo statement found.");
-        ASTNode *emptyNode;
+        ASTNode *emptyNode = NewNode("EMPTY", EMPTY);
         emptyNode->num = 0;
         return emptyNode;
     }
@@ -100,9 +128,8 @@ ASTNode *Statement(TokenList *tokens) {
 ASTNode *parser(TokenList *tokens) {
     i=0;
     printf("\nStarting at index %d, token %s.", i, tokens->tokens[i].value);
-
     ASTNode *root = NewNode("ROOT", ROOT);
-    while (acceptterm(&tokens->tokens[i], ".") == 0) {
+    while (expectterm(&tokens->tokens[i], ".") == 0) {
         ASTNode *stmt = Statement(tokens);
         root = AddChildren(root, NULL, stmt);
     }
